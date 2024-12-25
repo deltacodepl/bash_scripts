@@ -12,10 +12,10 @@ WORK_DIR="/tmp"
 
 ### Defaults
 CLOUD_PASSWORD_DEFAULT=$GEN_PASS # Password for cloud-init
-CLOUD_USER_DEFAULT="root" # User for cloud-init
-LOCAL_LANG="en_GB.UTF-8"
+CLOUD_USER_DEFAULT="ubuntu" # User for cloud-init
+LOCAL_LANG="pl_PL.UTF-8"
 SET_X11="yes" # "yes" or "no" required
-VMID_DEFAULT="52000" # VM ID
+VMID_DEFAULT="9000" # VM ID
 X11_LAYOUT="gb"
 X11_MODEL="pc105"
 
@@ -28,20 +28,20 @@ AGENT_ENABLE="1" # Change to 0 if you don't want the guest agent
 BALLOON="768" # Minimum balooning size
 BIOS="ovmf" # Choose between ovmf or seabios
 CORES="2"
-DISK_SIZE="15G"
-DISK_STOR="proxmox" # Name of disk storage within Proxmox
+DISK_SIZE="10G"
+DISK_STOR="local-lvm" # Name of disk storage within Proxmox
 FSTRIM="1"
 MACHINE="q35" # Type of machine. Q35 or i440fx
-MEM="2048" # Max RAM
+MEM="4096" # Max RAM
 NET_BRIDGE="vmbr1" # Network bridge name
 TAG="template"
 
 OS_TYPE="l26" # OS type (Linux 6x - 2.6 Kernel)
 # SSH Keys. Unset the variable if you don't want to use this. Use the public key. 
-SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOFLnUCnFyoONBwVMs1Gj4EqERx+Pc81dyhF6IuF26WM proxvms"
-TZ="Europe/London"
-VLAN="50" # Set if you have VLAN requirements
-ZFS="true" # Set to true if you have a ZFS datastore
+SSH_KEY=""
+TZ="Europe/Warsaw"
+VLAN="" # Set if you have VLAN requirements
+ZFS="false" # Set to true if you have a ZFS datastore
 
 # Notes variable
 NOTES=$(cat << 'EOF'
