@@ -31,7 +31,7 @@ CORES="2"
 DISK_SIZE="10G"
 DISK_STOR="local-lvm" # Name of disk storage within Proxmox
 FSTRIM="1"
-MACHINE="i440fx" # Type of machine. Q35 or i440fx
+MACHINE="pc" # Type of machine. Q35 or pc - i440fx
 MEM="4096" # Max RAM
 NET_BRIDGE="vmbr1" # Network bridge name
 TAG="template"
@@ -289,7 +289,6 @@ copy_cloud_init_config_to_image() {
 create_vm() {
     echo "### Creating VM ###"
     qm create $VMID --name $TEMPL_NAME --memory $MEM --balloon $BALLOON --cores $CORES --bios $BIOS --machine $MACHINE --net0 virtio,bridge=${NET_BRIDGE}${VLAN:+,tag=$VLAN}
-    qm set $VMID --agent enabled=$AGENT_ENABLE,fstrim_cloned_disks=$FSTRIM
     qm set $VMID --ostype $OS_TYPE
     if [ $ZFS == 'true' ]; then
         echo "### ZFS set to $ZFS ###"
@@ -299,10 +298,11 @@ create_vm() {
     else
         echo "### ZFS set to $ZFS ####"
         qm importdisk $VMID $WORK_DIR/$DISK_IMAGE $DISK_STOR -format qcow2
-        qm set $VMID --scsihw virtio-scsi-pci --scsi0 $DISK_STOR:$VMID-vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
-        qm set $VMID --efidisk0 $DISK_STOR:0,efitype=4m,format=qcow2,pre-enrolled-keys=1,size=1M
+        qm set $VMID --scsihw virtio-scsi-pci --scsi0 $DISK_STOR:vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
+        qm set $VMID --efidisk0 $DISK_STOR:0,efitype=4m,pre-enrolled-keys=1,size=1M
     fi
     qm set $VMID --serial0 socket --vga serial0
+    qm set $VMID --agent enabled=$AGENT_ENABLE,fstrim_cloned_disks=$FSTRIM
     qm set $VMID --tags $TAG
     qm set $VMID --ide2 $DISK_STOR:cloudinit
     #qm set $VMID --scsi1 $DISK_STOR:cloudinit
