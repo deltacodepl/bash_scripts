@@ -300,11 +300,8 @@ create_vm() {
         qm importdisk $VMID $WORK_DIR/$DISK_IMAGE $DISK_STOR -format raw
         qm set $VMID --scsihw virtio-scsi-single --scsi0 $DISK_STOR:vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
         qm set $VMID --efidisk0 $DISK_STOR:0,efitype=4m,pre-enrolled-keys=1,size=1M
-    firned on protection against thin pools running out of space.
-  WARNING: Set activation/thin_pool_autoextend_threshold below 100 to trigger automatic extension of thin pools before they get full.
-  Logical volume pve/vm-9000-disk-0 successfully resized.
-  WARNING: Sum of all thin volume sizes (<276.50 GiB) exceeds the size of thin pool pve/data and the size of whole volume group (232.38 GiB).
-### Dele
+    fi
+
     qm set $VMID --serial0 socket --vga serial0
     qm set $VMID --agent enabled=$AGENT_ENABLE,fstrim_cloned_disks=$FSTRIM
     qm set $VMID --tags $TAG
