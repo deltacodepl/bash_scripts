@@ -33,7 +33,7 @@ DISK_STOR="local-lvm" # Name of disk storage within Proxmox
 FSTRIM="1"
 MACHINE="pc" # Type of machine. Q35 or pc - i440fx
 MEM="4096" # Max RAM
-NET_BRIDGE="vmbr1" # Network bridge name
+NET_BRIDGE="vmbr0" # Network bridge name
 TAG="template"
 
 OS_TYPE="l26" # OS type (Linux 6x - 2.6 Kernel)
@@ -297,10 +297,14 @@ create_vm() {
         qm set $VMID --efidisk0 $DISK_STOR:0,efitype=4m,,pre-enrolled-keys=1,size=1M
     else
         echo "### ZFS set to $ZFS ####"
-        qm importdisk $VMID $WORK_DIR/$DISK_IMAGE $DISK_STOR -format qcow2
-        qm set $VMID --scsihw virtio-scsi-pci --scsi0 $DISK_STOR:vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
+        qm importdisk $VMID $WORK_DIR/$DISK_IMAGE $DISK_STOR -format raw
+        qm set $VMID --scsihw virtio-scsi-single --scsi0 $DISK_STOR:vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
         qm set $VMID --efidisk0 $DISK_STOR:0,efitype=4m,pre-enrolled-keys=1,size=1M
-    fi
+    firned on protection against thin pools running out of space.
+  WARNING: Set activation/thin_pool_autoextend_threshold below 100 to trigger automatic extension of thin pools before they get full.
+  Logical volume pve/vm-9000-disk-0 successfully resized.
+  WARNING: Sum of all thin volume sizes (<276.50 GiB) exceeds the size of thin pool pve/data and the size of whole volume group (232.38 GiB).
+### Dele
     qm set $VMID --serial0 socket --vga serial0
     qm set $VMID --agent enabled=$AGENT_ENABLE,fstrim_cloned_disks=$FSTRIM
     qm set $VMID --tags $TAG
@@ -314,6 +318,7 @@ create_vm() {
     qm set $VMID --ipconfig0 ip=dhcp
     qm cloudinit update $VMID
     qm set $VMID --description "$NOTES"
+    qm template $VMID
 }
 
 # Apply SSH Key if the value is set
