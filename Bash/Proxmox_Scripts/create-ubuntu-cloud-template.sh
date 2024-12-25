@@ -26,12 +26,12 @@ EXTRA_VIRT_PKGS="" # Comma separated packages. Leave empty if not installing add
 ### VM variables
 AGENT_ENABLE="1" # Change to 0 if you don't want the guest agent
 BALLOON="768" # Minimum balooning size
-BIOS="ovmf" # Choose between ovmf or seabios
+BIOS="seabios" # Choose between ovmf or seabios
 CORES="2"
 DISK_SIZE="10G"
 DISK_STOR="local-lvm" # Name of disk storage within Proxmox
 FSTRIM="1"
-MACHINE="q35" # Type of machine. Q35 or i440fx
+MACHINE="i440fx" # Type of machine. Q35 or i440fx
 MEM="4096" # Max RAM
 NET_BRIDGE="vmbr1" # Network bridge name
 TAG="template"
@@ -148,7 +148,7 @@ select_ubuntu_version() {
         DISTRO_VER="$selected_version"
         DISK_IMAGE="$DISTRO_VER-server-cloudimg-amd64.img"
         IMAGE_URL="https://cloud-images.ubuntu.com/$DISTRO_VER/current/$DISK_IMAGE"
-        TEMPL_NAME_DEFAULT=$(echo "ubuntu-$DISTRO_VER-cloud-master" | sed -r 's/(^|_)([a-z])/\U\2/g')
+        TEMPL_NAME_DEFAULT=$(echo "ubuntu-$DISTRO_VER-tpl" | sed -r 's/(^|_)([a-z])/\U\2/g')
         OS_NAME="Ubuntu $DISTRO_VER" # Name of VM
         OS_NAME="$(echo "$OS_NAME" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')"
         echo "Selected Ubuntu version: $version"
@@ -299,14 +299,16 @@ create_vm() {
     else
         echo "### ZFS set to $ZFS ####"
         qm importdisk $VMID $WORK_DIR/$DISK_IMAGE $DISK_STOR -format qcow2
-        qm set $VMID --scsihw virtio-scsi-pci --scsi0 $DISK_STOR:$VMID/vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
+        qm set $VMID --scsihw virtio-scsi-pci --scsi0 $DISK_STOR:$VMID-vm-$VMID-disk-0,cache=writethrough,discard=on,iothread=1,ssd=1
         qm set $VMID --efidisk0 $DISK_STOR:0,efitype=4m,format=qcow2,pre-enrolled-keys=1,size=1M
     fi
+    qm set $VMID --serial0 socket --vga serial0
     qm set $VMID --tags $TAG
-    qm set $VMID --scsi1 $DISK_STOR:cloudinit
+    qm set $VMID --ide2 $DISK_STOR:cloudinit
+    #qm set $VMID --scsi1 $DISK_STOR:cloudinit
     qm set $VMID --rng0 source=/dev/urandom
-    qm set $VMID --ciuser $CLOUD_USER
-    qm set $VMID --cipassword "$CLOUD_PASSWORD"
+    #qm set $VMID --ciuser $CLOUD_USER
+    #qm set $VMID --cipassword "$CLOUD_PASSWORD"
     qm set $VMID --boot c --bootdisk scsi0
     qm set $VMID --tablet 0
     qm set $VMID --ipconfig0 ip=dhcp
