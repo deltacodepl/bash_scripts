@@ -148,7 +148,8 @@ select_ubuntu_version() {
         DISTRO_VER="$selected_version"
         DISK_IMAGE="$DISTRO_VER-server-cloudimg-amd64.img"
         IMAGE_URL="https://cloud-images.ubuntu.com/$DISTRO_VER/current/$DISK_IMAGE"
-        TEMPL_NAME_DEFAULT=$(echo "ubuntu-$DISTRO_VER-tpl" | sed -r 's/(^|_)([a-z])/\U\2/g')
+        #TEMPL_NAME_DEFAULT=$(echo "ubuntu-$DISTRO_VER-tpl" | sed -r 's/(^|_)([a-z])/\U\2/g')
+        TEMPL_NAME_DEFAULT=$(echo "ubuntu-$DISTRO_VER-tpl"
         OS_NAME="Ubuntu $DISTRO_VER" # Name of VM
         OS_NAME="$(echo "$OS_NAME" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')"
         echo "Selected Ubuntu version: $version"
